@@ -13,7 +13,13 @@ class ModelTranslateServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->publishes([
+            __DIR__.'/config/translate.php' => config_path('translate.php'),
+        ]);
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
+        $this->mergeConfigFrom(
+            __DIR__.'/config/translate.php', 'translate'
+        );
     }
 
     /**

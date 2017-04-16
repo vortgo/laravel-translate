@@ -270,10 +270,9 @@ trait Translate
     private function saveTranslationFromArray(array $attributes, $model)
     {
         try {
-            $localeFields = array_intersect_key($attributes, config('app.languages'));
-            dd($attributes, config('app.languages'), $localeFields);
-            foreach ($localeFields as $locale => $array) {
-                if (is_array($array)) {
+            $allowLanguages = config('translate.allowLanguages');
+            foreach ($attributes as $locale => $array) {
+                if (is_array($array) && in_array($locale,$allowLanguages)) {
                     foreach ($array as $key => $value) {
                         if (isset($key) && isset($value) && $key && $value) {
                             $model->saveTranslation($locale, $key, $value);
