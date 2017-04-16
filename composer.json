@@ -1,0 +1,24 @@
+{
+    "name": "vortgo/laravel-translate",
+    "description": "Translate system for laravel project",
+    "license": "MIT",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Viktor Pelykh",
+            "email": "vortgo@gmail.com"
+        }
+    ],
+    "require": {
+        "php" : ">=5.5.0"
+    },
+    "require-dev": {
+        "orchestra/testbench-browser-kit": "~3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vortgo\\Translate\\": "src",
+            "Vortgo\\Translate\\Tests\\": "tests"
+        }
+    }
+}
