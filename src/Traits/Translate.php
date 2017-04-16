@@ -13,6 +13,7 @@ trait Translate
 
     public function rTranslate()
     {
+
         return $this->hasMany('\Vortgo\Translate\Models\Translation', 'entity_id', $this->primaryKey)->where('entity_name', $this->getMorphClass());
     }
 
@@ -239,7 +240,7 @@ trait Translate
     private function getTranslationModelEntity($locale, $key)
     {
         /** @var Translation $translation */
-        if ($translation = $this->rTranslate->where('locale', $locale)->where('entity_attribute', $key)->first()) {
+        if ($translation = $this->rTranslate()->where('locale', $locale)->where('entity_attribute', $key)->first()) {
             return $translation;
         }
         return null;
