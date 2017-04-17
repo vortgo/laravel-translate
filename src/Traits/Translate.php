@@ -62,9 +62,9 @@ trait Translate
             return true;
         }
         if ($locale) {
-            return (bool)$this->rTranslate->where('locale', $locale)->count();
+            return (bool)$this->rTranslate()->where('locale', $locale)->count();
         } else {
-            return (bool)$this->rTranslate->count();
+            return (bool)$this->rTranslate()->count();
         }
     }
 
@@ -78,19 +78,19 @@ trait Translate
     {
         $result = [];
         if ($locale) {
-            $translates = $this->rTranslate->where('locale', $locale)->all();
+            $translates = $this->rTranslate()->where('locale', $locale)->get();
         } else {
             $translates = $this->rTranslate;
         }
         foreach ($translates as $translate) {
-            $result[$translate->locale][] = [$translate->entity_attribute => $translate->value];
+            $result[$translate->locale] = [$translate->entity_attribute => $translate->value];
         }
 
         return $result;
     }
 
     /**
-     * Save translatio=-0 for model attribute
+     * Save translation for model attribute
      *
      * @param $locale
      * @param $key
@@ -111,11 +111,11 @@ trait Translate
             if (!$translation = $this->rTranslate()->where('locale', $locale)->where('entity_attribute', $key)->first()) {
                 try {
                     Translation::create([
-                        'entity_id' => $this->{$this->primaryKey},
-                        'entity_name' => $this->getMorphClass(),
-                        'locale' => $locale,
+                        'entity_id'        => $this->{$this->primaryKey},
+                        'entity_name'      => $this->getMorphClass(),
+                        'locale'           => $locale,
                         'entity_attribute' => $key,
-                        'value' => $value
+                        'value'            => $value
                     ]);
                 } catch (\Exception $e) {
                     throw new SaveTranslateException("Can't save new translation for model", 0, $e);
@@ -273,7 +273,7 @@ trait Translate
         try {
             $allowLanguages = config('translate.allowLanguages');
             foreach ($attributes as $locale => $array) {
-                if (is_array($array) && in_array($locale,$allowLanguages)) {
+                if (is_array($array) && in_array($locale, $allowLanguages)) {
                     foreach ($array as $key => $value) {
                         if (isset($key) && isset($value) && $key && $value) {
                             $model->saveTranslation($locale, $key, $value);
