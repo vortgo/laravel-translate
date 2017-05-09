@@ -2,8 +2,8 @@
 
 namespace Vortgo\Translate\Tests;
 
-use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase;
+use Vortgo\Translate\Exceptions\Translate\DeleteTranslateException;
 use Vortgo\Translate\Exceptions\Translate\SaveTranslateException;
 use Vortgo\Translate\Tests\Models\Category;
 
@@ -16,28 +16,15 @@ class TranslateTraitTest extends TestCase
     {
         parent::setUp();
 
-        Schema::create('categories', function ($table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->timestamps();
-        });
+        $this->loadMigrationsFrom([
+            '--database' => 'testing',
+            '--realpath' => realpath(__DIR__ . '/../src/database/migrations'),
+        ]);
 
-        Schema::create('translations', function ($table) {
-            $table->bigInteger('translation_id', true)->unsigned();
-            $table->bigInteger('entity_id')->unsigned()->index('translations_entity_id_idx');
-            $table->string('entity_name')->index('translations_entity_name_idx');
-            $table->string('entity_attribute');
-            $table->string('locale', 5)->index('translations_locale_idx');
-            $table->text('value', 65535);
-            $table->timestamps();
-        });
-    }
-
-    public function tearDown()
-    {
-        Schema::drop('categories');
-        Schema::drop('translations');
-        parent::tearDown();
+        $this->loadMigrationsFrom([
+            '--database' => 'testing',
+            '--realpath' => realpath(__DIR__ . '/migrations'),
+        ]);
     }
 
     /**
@@ -66,6 +53,7 @@ class TranslateTraitTest extends TestCase
     {
         return [
             \Vortgo\Translate\ModelTranslateServiceProvider::class,
+            'Orchestra\Database\ConsoleServiceProvider'
         ];
     }
 
@@ -79,7 +67,7 @@ class TranslateTraitTest extends TestCase
      */
     public function testCreateEntityWithTranslate(array $entityData, array $expected)
     {
-        config(['translate.allowLanguages' => ['en', 'ru', 'fr']]);
+        config(['translate.allowedLanguages' => ['en', 'ru', 'fr']]);
         $category = Category::create($entityData);
 
         foreach ($expected as $lang => $value) {
@@ -96,7 +84,7 @@ class TranslateTraitTest extends TestCase
      */
     public function testLangNotAllowed(array $entityData, array $expected)
     {
-        config(['translate.allowLanguages' => ['en']]);
+        config(['translate.allowedLanguages' => ['en']]);
         $category = Category::create($entityData);
 
         foreach ($expected as $lang => $value) {
@@ -205,7 +193,7 @@ class TranslateTraitTest extends TestCase
      */
     public function testGetTranslations(array $entityData, array $expected)
     {
-        config(['translate.allowLanguages' => ['en', 'ru', 'fr']]);
+        config(['translate.allowedLanguages' => ['en', 'ru', 'fr']]);
         $category = Category::create($entityData);
         $this->assertEquals($expected['translate_data'], $category->getTranslations($expected['locale']));
     }
@@ -243,12 +231,22 @@ class TranslateTraitTest extends TestCase
     }
 
     /**
+     * Failed save translate
+     */
+    public function testFailSaveTranslation()
+    {
+        $this->expectException(SaveTranslateException::class);
+        $category = new Category();
+        $category->saveTranslation(str_random(), str_random(), str_random());
+    }
+
+    /**
      * @return array
      */
     public function createEntityWithTranslateDataProvider()
     {
         return [
-            [
+            'Default value and ru translate'          => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -259,7 +257,7 @@ class TranslateTraitTest extends TestCase
                     'ru' => 'название',
                 ]
             ],
-            [
+            'Default value with ru and fr translates' => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -283,7 +281,7 @@ class TranslateTraitTest extends TestCase
     public function langNotAllowedDataProvider()
     {
         return [
-            [
+            'Ru and fr not allowed' => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -307,7 +305,7 @@ class TranslateTraitTest extends TestCase
     public function changeAppLocaleDataProvider()
     {
         return [
-            [
+            'Ru translate' => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -325,7 +323,7 @@ class TranslateTraitTest extends TestCase
     public function returnDefaultValueDataProvider()
     {
         return [
-            [
+            'Default - name' => [
                 [
                     'name' => 'name',
                 ]
@@ -339,7 +337,7 @@ class TranslateTraitTest extends TestCase
     public function manualAddTranslateDataProvider()
     {
         return [
-            [
+            'Manual add ru' => [
                 [
                     'name' => 'name',
                 ],
@@ -358,7 +356,7 @@ class TranslateTraitTest extends TestCase
     public function failManualAddTranslateDataProvider()
     {
         return [
-            [
+            'Name not exist in model' => [
                 [
                     'name' => 'name',
                 ],
@@ -377,7 +375,7 @@ class TranslateTraitTest extends TestCase
     public function hasTranslateDataProvider()
     {
         return [
-            [
+            'Name must be exist'       => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -386,7 +384,7 @@ class TranslateTraitTest extends TestCase
                 ],
                 true
             ],
-            [
+            'Name don t must be exist' => [
                 [
                     'name' => 'name',
                 ],
@@ -401,7 +399,7 @@ class TranslateTraitTest extends TestCase
     public function toArrayDataProvider()
     {
         return [
-            [
+            'Ru translate to array' => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -422,7 +420,7 @@ class TranslateTraitTest extends TestCase
     public function getTranslationsDataProvider()
     {
         return [
-            [
+            'Ru data translation'         => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -438,7 +436,7 @@ class TranslateTraitTest extends TestCase
                     ]
                 ]
             ],
-            [
+            'Fr Data translation'         => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -457,7 +455,7 @@ class TranslateTraitTest extends TestCase
                     ]
                 ]
             ],
-            [
+            'Fr and ru data translations' => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -488,7 +486,7 @@ class TranslateTraitTest extends TestCase
     public function updateDataProvider()
     {
         return [
-            [
+            'Update ru translation' => [
                 [
                     'name' => 'name',
                     'ru'   => [
@@ -516,13 +514,28 @@ class TranslateTraitTest extends TestCase
     public function deleteTranslationDataProvider()
     {
         return [
-            [
+            'Delete ru translations' => [
                 [
                     'name' => 'name',
                     'ru'   => [
                         'name' => 'название'
                     ],
                 ],
+                [
+                    'locale' => 'ru',
+                    'key'    => 'name'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function failDeleteTranslationDataProvider()
+    {
+        return [
+            'Delete ru translations' => [
                 [
                     'locale' => 'ru',
                     'key'    => 'name'

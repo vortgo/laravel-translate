@@ -2,5 +2,5 @@
 
 
 return [
-    'allowLanguages' => ['en','ru']
+    'allowedLanguages' => ['en','ru']
 ];

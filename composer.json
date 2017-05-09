@@ -10,7 +10,9 @@
         }
     ],
     "require": {
-        "php" : ">=5.5.0"
+        "php" : ">=5.5.0",
+        "laravel/framework": ">=5.1",
+        "orchestra/database": "^3.4"
     },
     "autoload": {
         "psr-4": {

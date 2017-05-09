@@ -18,7 +18,7 @@ class CreateTranslationsTable extends Migration {
 			$table->bigInteger('entity_id')->unsigned()->index('translations_entity_id_idx');
 			$table->string('entity_name')->index('translations_entity_name_idx');
 			$table->string('entity_attribute');
-			$table->string('locale', 5)->index('translations_locale_idx');
+			$table->string('locale', 2)->index('translations_locale_idx');
 			$table->text('value', 65535);
 			$table->timestamps();
 		});

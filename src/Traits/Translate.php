@@ -144,7 +144,7 @@ trait Translate
         try {
             $this->rTranslate()->where('locale', $locale)->where('entity_attribute', $key)->delete();
         } catch (\Exception $e) {
-            throw new DeleteTranslateException('Can\'t delete translation for model', 0, $e);
+            throw new DeleteTranslateException("Can't delete translation for model", 0, $e);
         }
     }
 
@@ -267,22 +267,23 @@ trait Translate
      *
      * @param array $attributes
      * @param $model
+     * @throws SaveTranslateException
      */
     private function saveTranslationFromArray(array $attributes, $model)
     {
         try {
-            $allowLanguages = config('translate.allowLanguages');
+            $allowedLanguages = config('translate.allowedLanguages');
             foreach ($attributes as $locale => $array) {
-                if (is_array($array) && in_array($locale, $allowLanguages)) {
+                if (is_array($array) && in_array($locale, $allowedLanguages)) {
                     foreach ($array as $key => $value) {
-                        if (isset($key) && isset($value) && $key && $value) {
+                        if ($key && $value) {
                             $model->saveTranslation($locale, $key, $value);
                         }
                     }
                 }
             }
         } catch (SaveTranslateException $e) {
-            \Log::error("try to save translate for {$model->getMorphClass()}");
+            throw new SaveTranslateException("Can't save translate for {$model->getMorphClass()}", 0, $e);
         }
     }
 }
