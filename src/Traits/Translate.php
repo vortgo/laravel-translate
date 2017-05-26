@@ -2,6 +2,7 @@
 
 namespace Vortgo\Translate\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Vortgo\Translate\Exceptions\Translate\DeleteTranslateException;
 use Vortgo\Translate\Exceptions\Translate\SaveTranslateException;
 use Vortgo\Translate\Models\Translation;
@@ -266,10 +267,10 @@ trait Translate
      * Save translations from array
      *
      * @param array $attributes
-     * @param $model
+     * @param Model $model
      * @throws SaveTranslateException
      */
-    private function saveTranslationFromArray(array $attributes, $model)
+    private function saveTranslationFromArray(array $attributes, Model $model)
     {
         try {
             $allowedLanguages = config('translate.allowedLanguages');

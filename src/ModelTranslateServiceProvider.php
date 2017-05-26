@@ -21,14 +21,4 @@ class ModelTranslateServiceProvider extends ServiceProvider
             __DIR__ . '/config/translate.php', 'translate'
         );
     }
-
-    /**
-     * Register the application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
-    }
 }
