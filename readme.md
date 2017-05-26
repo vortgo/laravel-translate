@@ -1,3 +1,4 @@
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/475c0c14-8534-41c1-9952-0753d6afc71a/small.png)](https://insight.sensiolabs.com/projects/475c0c14-8534-41c1-9952-0753d6afc71a)
 # Translate entity
 
 ## About package
