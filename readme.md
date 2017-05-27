@@ -14,9 +14,12 @@ Require this package in your composer.json
 
 Add the service provider to you config file config/app.php
 
-    Vortgo\Translate\ModelTranslateServiceProvider
-
-3 Run migration to create table for your translatable content
+    Vortgo\Translate\ModelTranslateServiceProvider::class
+Publish vendor
+```
+    $ php artisan vendor:publish
+```
+Run migration to create table for your translatable content
 
     $ php artisan migrate
 
